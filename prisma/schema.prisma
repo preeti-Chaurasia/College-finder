@@ -1,0 +1,28 @@
+// prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+ 
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model College {
+  id            String   @id @default(uuid())
+  name          String
+  location      String
+  image         String  
+  fees          Int      
+  placementRate Int     
+  avgSalary     Int      
+  ranking       Int      
+  rating        Float    
+  type          String   
+  totalStudents String  
+  overview      String   @db.Text 
+  courseTypes   String[] 
+  topRecruiters String[] 
+  createdAt     DateTime @default(now())
+}
