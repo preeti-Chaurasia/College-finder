@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     const maxFees = parseInt(searchParams.get('maxFees') || '100000');
     const coursesStr = searchParams.get('courses') || '';
 
-const sql = neon("postgresql://neondb_owner:npg_xlCK1vkj7hXE@ep-odd-thunder-aoauylyg-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require");
+const sql = neon(process.env.DATABASE_URL);
 
 
     let query = 'SELECT * FROM "College" WHERE 1=1';

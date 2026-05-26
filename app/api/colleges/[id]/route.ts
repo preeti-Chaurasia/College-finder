@@ -15,7 +15,7 @@ export async function GET(
       return NextResponse.json({ error: "ID parameter missing" }, { status: 400 });
     }
 
-    const sql = neon("postgresql://neondb_owner:npg_xlCK1vkj7hXE@ep-odd-thunder-aoauylyg-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require");
+    const sql = neon(process.env.DATABASE_URL);
 
    
     const rows = await sql`SELECT * FROM "College" WHERE id = ${collegeId}`;
