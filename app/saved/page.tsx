@@ -20,7 +20,6 @@ export default function SavedCollegesPage() {
   useEffect(() => {
     async function loadSavedData() {
       try {
-        // 1. Get current array array from storage
         const savedIds: string[] = JSON.parse(localStorage.getItem('saved_colleges') || '[]');
         
         if (savedIds.length === 0) {
@@ -29,11 +28,9 @@ export default function SavedCollegesPage() {
           return;
         }
 
-        // 2. Fetch using your existing fully functional home API route path
         const res = await fetch('/api/colleges');
         if (res.ok) {
           const allColleges: College[] = await res.json();
-          // Safe matching checks
           if (Array.isArray(allColleges)) {
             const matched = allColleges.filter(col => savedIds.includes(col.id));
             setSavedColleges(matched);
@@ -87,15 +84,17 @@ export default function SavedCollegesPage() {
             <div key={college.id} className="bg-white rounded-2xl border border-slate-100 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col group relative">
               <div className="relative h-44 w-full bg-slate-100 overflow-hidden">
                 <img 
-                  src={college.image} 
+                  src={college.image || "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=800"} 
                   alt={college.name} 
+                  onError={(e) => {
+                    e.currentTarget.src = "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=800";
+                  }}
                   className="w-full h-full object-cover group-hover:scale-105 transition duration-300" 
                 />
                 <span className="absolute bottom-3 left-3 bg-[#e6f4ea] text-[#137333] text-xs font-bold px-2 py-1 rounded-md">
                   Match: {college.placementRate}%
                 </span>
                 
-                {/* REMOVE / TOGGLE HEART INLINE BUTTON */}
                 <button 
                   onClick={(e) => removeBookmark(college.id, e)}
                   className="absolute top-3 right-3 p-2 bg-white/90 hover:bg-white rounded-full shadow-sm transition text-lg leading-none z-10"

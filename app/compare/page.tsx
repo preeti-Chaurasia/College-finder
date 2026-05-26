@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 export const dynamic = "force-dynamic";
@@ -18,7 +18,7 @@ interface College {
   courseTypes: string[];
 }
 
-export default function ComparePage() {
+function ComparePageContent() {
   const searchParams = useSearchParams();
   const [colleges, setColleges] = useState<College[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,7 +73,6 @@ export default function ComparePage() {
     );
   }
 
-  // Helper variables to find best rates dynamically
   const minFees = Math.min(...colleges.map(c => c.fees || 0));
   const maxPlacement = Math.max(...colleges.map(c => c.placementRate || 0));
 
@@ -81,30 +80,29 @@ export default function ComparePage() {
     <div className="w-full bg-[#f8fafc] min-h-screen py-12 px-6">
       <div className="max-w-7xl mx-auto">
         
-        {/* Header Titles */}
         <div className="mb-8">
           <h1 className="text-4xl font-extrabold text-slate-950 tracking-tight mb-2">Compare Colleges</h1>
           <p className="text-slate-500 text-sm">Analyze and compare your top choices side-by-side to make the most informed decision for your future career.</p>
         </div>
 
-        {/* Comparison Matrix Table Wrapper */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden overflow-x-auto">
           <table className="w-full text-left border-collapse table-fixed min-w-[800px]">
             <thead>
               <tr className="border-b border-slate-100">
-                {/* Fixed Label Corner Cell */}
                 <th className="p-6 text-[11px] font-extrabold text-slate-400 uppercase tracking-wider w-1/4 align-middle bg-slate-50/40">
                   Comparison Metric
                 </th>
                 
-                {/* Dynamic Mapping Columns based on Selection */}
                 {colleges.map((col) => (
                   <th key={col.id} className="p-6 border-l border-slate-100 w-1/4 relative group">
                     <div className="flex flex-col gap-3">
                       <div className="relative h-36 w-full overflow-hidden rounded-xl bg-slate-50 border border-slate-100">
                         <img 
-                          src={col.image} 
+                          src={col.image || "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=800"} 
                           alt={col.name} 
+                          onError={(e) => {
+                            e.currentTarget.src = "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=800";
+                          }}
                           className="w-full h-full object-cover group-hover:scale-102 transition duration-300" 
                         />
                       </div>
@@ -116,7 +114,6 @@ export default function ComparePage() {
                   </th>
                 ))}
 
-                {/* Empty Filler Columns if less than 3 colleges are compared */}
                 {colleges.length < 3 && Array.from({ length: 3 - colleges.length }).map((_, i) => (
                   <th key={`empty-${i}`} className="p-6 border-l border-slate-100 w-1/4 bg-slate-50/20 text-center text-slate-300 text-xs font-medium italic">
                     Slot Available
@@ -126,8 +123,6 @@ export default function ComparePage() {
             </thead>
             
             <tbody className="divide-y divide-slate-100 text-sm font-semibold text-slate-700">
-              
-              {/* ROW 1: FEES COMPARISON */}
               <tr>
                 <td className="p-6 bg-slate-50/40 text-slate-800 font-bold text-xs uppercase tracking-wider">Fees (Per Year)</td>
                 {colleges.map((col) => {
@@ -148,7 +143,6 @@ export default function ComparePage() {
                 ))}
               </tr>
 
-              {/* ROW 2: PLACEMENT RATE */}
               <tr>
                 <td className="p-6 bg-slate-50/40 text-slate-800 font-bold text-xs uppercase tracking-wider">Placement Rate</td>
                 {colleges.map((col) => {
@@ -169,7 +163,6 @@ export default function ComparePage() {
                 ))}
               </tr>
 
-              {/* ROW 3: AVG SALARY package */}
               <tr>
                 <td className="p-6 bg-slate-50/40 text-slate-800 font-bold text-xs uppercase tracking-wider">Avg. Salary (Annual)</td>
                 {colleges.map((col) => (
@@ -182,7 +175,6 @@ export default function ComparePage() {
                 ))}
               </tr>
 
-              {/* ROW 4: GLOBAL RANKING */}
               <tr>
                 <td className="p-6 bg-slate-50/40 text-slate-800 font-bold text-xs uppercase tracking-wider">Global Ranking</td>
                 {colleges.map((col) => (
@@ -199,7 +191,6 @@ export default function ComparePage() {
                 ))}
               </tr>
 
-              {/* ROW 5: RECRUITERS & COURSES */}
               <tr>
                 <td className="p-6 bg-slate-50/40 text-slate-800 font-bold text-xs uppercase tracking-wider">Top Stream Type</td>
                 {colleges.map((col) => (
@@ -218,7 +209,6 @@ export default function ComparePage() {
                 ))}
               </tr>
 
-              {/* ROW 6: ACTIONS */}
               <tr>
                 <td className="p-6 bg-slate-50/40 text-slate-800 font-bold text-xs uppercase tracking-wider">Action</td>
                 {colleges.map((col) => (
@@ -235,12 +225,23 @@ export default function ComparePage() {
                   <td key={`empty-row6-${i}`} className="p-6 border-l border-slate-100 bg-slate-50/10"></td>
                 ))}
               </tr>
-
             </tbody>
           </table>
         </div>
-
       </div>
     </div>
+  );
+}
+
+export default function ComparePage() {
+  return (
+    <Suspense fallback={
+      <div className="text-center py-20 bg-[#f8fafc] min-h-screen">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-[#0052cc] mx-auto"></div>
+        <p className="text-slate-400 text-sm mt-4 font-medium">Loading comparison matrix configuration...</p>
+      </div>
+    }>
+      <ComparePageContent />
+    </Suspense>
   );
 }
